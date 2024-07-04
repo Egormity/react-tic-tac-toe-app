@@ -1,17 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import './mixins';
 :root {
   --color-primary-dark: #004084;
   --color-primary: #017bff;
   --color-primary-light: #cce5fe;
+
   --color-grey-light-1: hsl(0, 0%, 97%);
   --color-grey-light-2: hsl(0, 0%, 95%);
   --color-grey-light-3: hsl(0, 0%, 93%);
   --color-grey-light-4: hsl(0, 0%, 87%);
   --color-grey-light-5: hsl(0, 0%, 82%);
+
   --color-grey-dark-1: #999;
   --color-grey-dark-2: #777;
   --color-grey-dark-3: #555;
   --color-grey-dark-4: #333;
+
   --color-white: #fff;
   --color-white-01: rgba(255, 255, 255, 0.1);
   --color-white-02: rgba(255, 255, 255, 0.2);
@@ -22,6 +26,7 @@
   --color-white-07: rgba(255, 255, 255, 0.7);
   --color-white-08: rgba(255, 255, 255, 0.8);
   --color-white-09: rgba(255, 255, 255, 0.9);
+
   --color-black: #000;
   --color-black-01: rgba(0, 0, 0, 0.1);
   --color-black-015: rgba(0, 0, 0, 0.15);
@@ -33,15 +38,22 @@
   --color-black-07: rgba(0, 0, 0, 0.7);
   --color-black-08: rgba(0, 0, 0, 0.8);
   --color-black-09: rgba(0, 0, 0, 0.9);
+
+  // Font
   --default-font-size: 1.6rem;
+
+  // Borders
   --border-light-1: 0.1rem solid var(--color-grey-light-1);
   --border-light-2: 0.1rem solid var(--color-grey-light-2);
   --border-light-3: 0.1rem solid var(--color-grey-light-3);
   --border-light-4: 0.1rem solid var(--color-grey-light-4);
+
   --border-dark-1: 0.1rem solid var(--color-grey-dark-1);
   --border-dark-2: 0.1rem solid var(--color-grey-dark-2);
   --border-dark-3: 0.1rem solid var(--color-grey-dark-3);
   --border-dark-4: 0.1rem solid var(--color-grey-dark-4);
+
+  // Shadows
   --shadow-1: 0 0.5rem 1rem var(--color-black-01);
   --shadow-2: 0 0.75rem 1rem var(--color-black-015);
   --shadow-3: 0 1rem 1.5rem var(--color-black-02);
@@ -49,7 +61,11 @@
   --shadow-5: 0 2rem 3rem var(--color-black-03);
   --shadow-6: 0 2rem 3.5rem var(--color-black-03);
   --shadow-7: 0 3rem 4rem var(--color-black-03);
+
+  //--- TRANSITIONS ---//
   --trans-dur-primary: 0.2s;
+
+  //--- UNITS ---//
   --unit-huge: 12rem;
   --unit-big: 8rem;
   --unit-medium: 5rem;
@@ -60,21 +76,18 @@
 }
 
 html {
-  font-size: 62.5%;
+  font-size: 62.5%; // 1 rem = 10px
   scroll-behavior: smooth;
-}
-@media only screen and (max-width: 37.5em) {
-  html {
+
+  @include responsive(max600px) {
     font-size: 52.5%;
   }
-}
-@media only screen and (max-width: 31.25em) {
-  html {
+
+  @include responsive(max500px) {
     font-size: 47.5%;
   }
-}
-@media only screen and (max-width: 25em) {
-  html {
+
+  @include responsive(max400px) {
     font-size: 37.5%;
   }
 }
@@ -152,28 +165,32 @@ body {
 .btn {
   font-weight: 500;
   transition: all var(--trans-dur-primary);
-}
-.btn--start-game {
-  padding: 2rem 4rem;
-  font-size: 2.5rem;
-  width: 100%;
-  background-color: var(--color-primary-light);
-  border: 0.1rem solid var(--color-primary);
-  border-radius: var(--unit-tiny);
-  box-shadow: var(--shadow-1);
-}
-.btn--start-game:hover {
-  filter: brightness(95%);
-}
-.btn--main {
-  color: var(--color-white);
-  background-color: var(--color-grey-dark-2);
-  border-radius: var(--unit-tinier);
-  padding: 1rem 2rem;
-  box-shadow: var(--shadow-2);
-}
-.btn--main:hover {
-  background-color: var(--color-grey-dark-1);
+
+  &--start-game {
+    padding: 2rem 4rem;
+    font-size: 2.5rem;
+    width: 100%;
+    background-color: var(--color-primary-light);
+    border: 0.1rem solid var(--color-primary);
+    border-radius: var(--unit-tiny);
+    box-shadow: var(--shadow-1);
+
+    &:hover {
+      filter: brightness(95%);
+    }
+  }
+
+  &--main {
+    color: var(--color-white);
+    background-color: var(--color-grey-dark-2);
+    border-radius: var(--unit-tinier);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-2);
+
+    &:hover {
+      background-color: var(--color-grey-dark-1);
+    }
+  }
 }
 
 .main {
@@ -184,11 +201,12 @@ body {
   display: grid;
   grid-gap: 3rem;
   justify-content: center;
-}
-.main--bottom {
-  overflow: visible;
-  display: flex;
-  justify-content: space-around;
+
+  &--bottom {
+    overflow: visible;
+    display: flex;
+    justify-content: space-around;
+  }
 }
 
 .timer {
@@ -232,9 +250,10 @@ body {
   display: grid;
   grid-gap: 1.5rem;
   overflow: visible;
-}
-.footer * {
-  overflow: visible;
+
+  & * {
+    overflow: visible;
+  }
 }
 
 .text-grey {
@@ -242,4 +261,4 @@ body {
   color: var(--color-white);
   border-radius: var(--unit-tinier);
   padding: 0.25rem 1rem;
-}/*# sourceMappingURL=index.css.map */
+}
