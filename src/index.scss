@@ -6,7 +6,9 @@
   --color-primary-light: #cce5fe;
   --color-primary-red: #fecccc;
   --color-primary-green: #d6fecc;
+  --color-paused: rgba(225, 225, 225, 0.8);
 
+  --color-grey-light-1: hsl(0, 0%, 98.5%);
   --color-grey-light-1: hsl(0, 0%, 97%);
   --color-grey-light-2: hsl(0, 0%, 95%);
   --color-grey-light-3: hsl(0, 0%, 93%);
@@ -101,6 +103,18 @@ body {
   background-color: var(--color-grey-light-2);
 }
 
+.player-win {
+  background-color: var(--color-primary-green);
+}
+
+.player-lost {
+  background-color: var(--color-primary-red);
+}
+
+.player-draw {
+  background-color: var(--color-grey-light-5);
+}
+
 *,
 *::after,
 *::before {
@@ -151,6 +165,7 @@ body {
   grid-gap: 5rem;
   justify-content: center;
   align-content: center;
+  background-color: inherit;
 }
 
 .hidden {
@@ -161,10 +176,11 @@ body {
 
 .starter-container {
   width: 100vw;
-  height: 90vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: inherit;
 }
 
 .starter {
@@ -203,6 +219,8 @@ body {
     border-radius: var(--unit-tinier);
     padding: 1rem 2rem;
     box-shadow: var(--shadow-2);
+    width: 10rem;
+    text-align: center;
 
     &:hover {
       background-color: var(--color-grey-dark-1);
@@ -211,7 +229,7 @@ body {
 }
 
 .main {
-  background-color: var(--color-white);
+  background-color: rgba(255, 255, 255, 0.8);
   box-shadow: var(--shadow-3);
   padding: 2rem;
   border-radius: var(--unit-tiny);
@@ -219,6 +237,10 @@ body {
   display: grid;
   grid-gap: 3rem;
   justify-content: center;
+
+  &--paused {
+    background-color: var(--color-paused);
+  }
 
   &--bottom {
     overflow: visible;

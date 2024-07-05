@@ -1,6 +1,6 @@
 import { useReducer, useEffect } from 'react';
 
-const SECONDS_PER_GAME = 3;
+const SECONDS_PER_GAME = 30;
 
 const initialState = {
   status: 'start-screen',
@@ -10,7 +10,9 @@ const initialState = {
   winner: null,
   isAWinner: false,
   isGameActive: false,
-  secondsRemaining: null,
+  secondsRemaining: SECONDS_PER_GAME,
+  isTimerActive: true,
+  isClickable: true,
 };
 
 const draw = 'draw';
@@ -118,18 +120,27 @@ const clearFields = () =>
     );
   });
 
-const determinePlayerIcon = Math.round(Math.random()) === 1 ? 'X' : 'O';
-const determineComputerIcon = determinePlayerIcon === 'X' ? 'O' : 'X';
+const body = document.querySelector('body');
+const playerWin = 'player-win';
+const playerLose = 'player-lost';
+const playerDraw = 'player-draw';
+const changeBodyColor = classList => body.classList.add(classList);
+const clearBodyColor = () => body.classList.remove(playerWin, playerLose, playerDraw);
+
+const determinePlayerIcon = () => (Math.round(Math.random()) === 1 ? 'X' : 'O');
+const determineComputerIcon = playerIcon => (playerIcon === 'X' ? 'O' : 'X');
 
 const reducer = (state, action) => {
+  const pIcon = determinePlayerIcon();
+
   switch (action.type) {
     case 'playing':
       return {
         ...state,
         turn: player,
         status: 'playing',
-        playerIcon: state.playerIcon ? state.playerIcon : determinePlayerIcon,
-        computerIcon: state.computerIcon ? state.computerIcon : determineComputerIcon,
+        playerIcon: state.playerIcon ? state.playerIcon : pIcon,
+        computerIcon: state.computerIcon ? state.computerIcon : determineComputerIcon(pIcon),
         isGameActive: true,
         secondsRemaining: SECONDS_PER_GAME,
       };
@@ -137,8 +148,8 @@ const reducer = (state, action) => {
       computersTurn(determineComputerIcon);
       return {
         ...state,
-        playerIcon: determinePlayerIcon,
-        computerIcon: determineComputerIcon,
+        playerIcon: determinePlayerIcon(),
+        computerIcon: determineComputerIcon(pIcon),
         status: 'playing',
         turn: player,
         isGameActive: true,
@@ -149,37 +160,60 @@ const reducer = (state, action) => {
       handleClickedField(activatedField, state.playerIcon);
 
       //--- CHECK IF PLAYER WINS ---//
-      if (checkIfSomeoneWins(fields, state.playerIcon))
-        return { ...state, winner: player, isAWinner: true };
+      if (checkIfSomeoneWins(fields, state.playerIcon)) {
+        changeBodyColor(playerWin);
+        return { ...state, winner: player, isAWinner: true, isTimerActive: false };
+      }
 
       //--- COMPUTER'S TURN ---//
       if (determineAvailableFields().length !== 0) computersTurn(state.computerIcon);
 
       //--- CHECK IF COMPUTER WINS ---//
-      if (checkIfSomeoneWins(fields, state.computerIcon))
-        return { ...state, winner: computer, isAWinner: true };
+      if (checkIfSomeoneWins(fields, state.computerIcon)) {
+        changeBodyColor(playerLose);
+        return { ...state, winner: computer, isAWinner: true, isTimerActive: false };
+      }
 
-      if (determineAvailableFields().length === 0)
-        return { ...state, winner: draw, isAWinner: true };
+      if (determineAvailableFields().length === 0) {
+        changeBodyColor(playerDraw);
+        return { ...state, winner: draw, isAWinner: true, isTimerActive: false };
+      }
       return { ...state, turn: player };
     case 'tick':
       if (state.secondsRemaining <= 0) {
         disableAllFields();
+        changeBodyColor(playerDraw);
         return { ...state, winner: lose, isAWinner: true };
       }
       return {
         ...state,
         secondsRemaining: state.secondsRemaining - 1,
       };
+    case 'handleTimer':
+      return { ...state, isTimerActive: !state.isTimerActive, isClickable: !state.isClickable };
     case 'reset':
       clearFields();
+      clearBodyColor();
       return {
         ...initialState,
+        turn: player,
         status: 'playing',
         isGameActive: true,
-        playerIcon: determinePlayerIcon,
-        computerIcon: determineComputerIcon,
+        playerIcon: pIcon,
+        computerIcon: determineComputerIcon(pIcon),
         secondsRemaining: SECONDS_PER_GAME,
+      };
+    case 'reset-computer':
+      clearFields();
+      clearBodyColor();
+      computersTurn(determineComputerIcon(pIcon));
+      return {
+        ...initialState,
+        playerIcon: pIcon,
+        computerIcon: determineComputerIcon(pIcon),
+        status: 'playing',
+        turn: player,
+        isGameActive: true,
       };
     default:
       return new Error('Unknown action');
@@ -188,10 +222,19 @@ const reducer = (state, action) => {
 
 export default function App() {
   const [
-    { status, turn, playerIcon, winner, isAWinner, isGameActive, secondsRemaining },
+    {
+      status,
+      turn,
+      playerIcon,
+      winner,
+      isAWinner,
+      isGameActive,
+      secondsRemaining,
+      isTimerActive,
+      isClickable,
+    },
     dispatch,
   ] = useReducer(reducer, initialState);
-  console.log(status);
 
   return (
     <>
@@ -209,6 +252,8 @@ export default function App() {
           isAWinner={isAWinner}
           secondsRemaining={secondsRemaining}
           isGameActive={isGameActive}
+          isTimerActive={isTimerActive}
+          isClickable={isClickable}
         />
         <Footer playerIcon={playerIcon} />
       </div>
@@ -239,7 +284,16 @@ function Header() {
   );
 }
 
-function Main({ dispatch, turn, winner, isAWinner, secondsRemaining, isGameActive }) {
+function Main({
+  dispatch,
+  turn,
+  winner,
+  isAWinner,
+  secondsRemaining,
+  isGameActive,
+  isTimerActive,
+  isClickable,
+}) {
   const winnerMessage = () => {
     if (winner === player) return 'You WON!';
     if (winner === computer) return 'Computer WON!';
@@ -248,54 +302,72 @@ function Main({ dispatch, turn, winner, isAWinner, secondsRemaining, isGameActiv
   };
 
   return (
-    <main className='main'>
+    <main className={`main ${!isClickable ? 'main--paused' : ''}`}>
       {!winner ? (
-        <h1 className='text-3'>It's {turn} Turn!</h1>
+        <h1 className='text-3'>
+          {!isClickable ? 'PASUED' : `It's ${turn === 'player' ? `Your` : `Computer's`} Turn!`}
+        </h1>
       ) : (
         <h1 className='text-3'>{winnerMessage()}</h1>
       )}
-      <GenerateFields dispatch={dispatch} isAWinner={isAWinner} />
+      <GenerateFields dispatch={dispatch} isAWinner={isAWinner} isClickable={isClickable} />
       <div className='main--bottom'>
-        <button className='btn btn--main text-4' onClick={() => dispatch({ type: 'reset' })}>
+        <button
+          className='btn btn--main text-4'
+          onClick={() =>
+            dispatch({ type: determineFirstTurn() === computer ? 'reset-computer' : 'reset' })
+          }>
           Reset
         </button>
         <Timer
           secondsRemaining={secondsRemaining}
           isGameActive={isGameActive}
           dispatch={dispatch}
+          isTimerActive={isTimerActive}
         />
-        <button className='btn btn--main text-4'>Pause</button>
+
+        <button
+          className='btn btn--main text-4'
+          onClick={() => (!isAWinner ? dispatch({ type: 'handleTimer' }) : null)}>
+          {isTimerActive ? 'Pause' : 'Start'}
+        </button>
       </div>
     </main>
   );
 }
 
-function Timer({ secondsRemaining, isGameActive, dispatch }) {
+function Timer({ secondsRemaining, isGameActive, dispatch, isTimerActive }) {
   const minutes = Math.floor(secondsRemaining / 60);
   const seconds = secondsRemaining % 60;
   const timeLeft = (minutes + '').padStart(2, 0) + ':' + (seconds + '').padStart(2, 0);
 
   useEffect(() => {
-    if (isGameActive && secondsRemaining >= 0) {
+    if (isGameActive && secondsRemaining >= 0 && isTimerActive) {
       const timer = setInterval(() => dispatch({ type: 'tick' }), 1000);
       return () => clearInterval(timer);
     }
-  }, [isGameActive, dispatch, secondsRemaining]);
+  }, [isGameActive, dispatch, secondsRemaining, isTimerActive]);
 
   return <h1 className='timer text-3'>{timeLeft}</h1>;
 }
 
-function GenerateFields({ dispatch, isAWinner }) {
+function GenerateFields({ dispatch, isAWinner, isClickable }) {
   return (
-    <div className='fields-container'>
+    <div className={`fields-container `}>
       {Array.from({ length: 9 }, (cur, i) => i + 1).map((field, i) => (
-        <Field index={i} dispatch={dispatch} isAWinner={isAWinner} key={i} />
+        <Field
+          index={i}
+          dispatch={dispatch}
+          isAWinner={isAWinner}
+          isClickable={isClickable}
+          key={i}
+        />
       ))}
     </div>
   );
 }
 
-function Field({ index, dispatch, isAWinner }) {
+function Field({ index, dispatch, isAWinner, isClickable }) {
   const evenBorders = i => {
     if (i === 0 || i === 1 || i === 6 || i === 7) return 'remove-right';
     if (i === 3 || i === 4) return 'remove-right remove-top-bottom';
@@ -305,8 +377,8 @@ function Field({ index, dispatch, isAWinner }) {
 
   return (
     <button
-      disabled={isAWinner}
-      className={`field ${evenBorders(index)}`}
+      disabled={isAWinner || !isClickable}
+      className={`field ${evenBorders(index)} `}
       id={`field-${index}`}
       onClick={() => {
         dispatch({ type: 'user-click', payload: index });
