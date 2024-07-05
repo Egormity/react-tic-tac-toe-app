@@ -3,6 +3,8 @@
   --color-primary-dark: #004084;
   --color-primary: #017bff;
   --color-primary-light: #cce5fe;
+  --color-primary-red: #fecccc;
+  --color-primary-green: #d6fecc;
   --color-grey-light-1: hsl(0, 0%, 97%);
   --color-grey-light-2: hsl(0, 0%, 95%);
   --color-grey-light-3: hsl(0, 0%, 93%);
@@ -138,6 +140,20 @@ body {
   align-content: center;
 }
 
+.hidden {
+  opacity: 0;
+  display: none;
+  visibility: hidden;
+}
+
+.starter-container {
+  width: 100vw;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .starter {
   background-color: var(--color-white);
   box-shadow: var(--shadow-4);
@@ -154,6 +170,7 @@ body {
   transition: all var(--trans-dur-primary);
 }
 .btn--start-game {
+  color: inherit;
   padding: 2rem 4rem;
   font-size: 2.5rem;
   width: 100%;
@@ -177,6 +194,7 @@ body {
 }
 
 .main {
+  background-color: var(--color-white);
   box-shadow: var(--shadow-3);
   padding: 2rem;
   border-radius: var(--unit-tiny);
@@ -200,16 +218,50 @@ body {
   height: 36rem;
   display: grid;
   grid-template-columns: repeat(3, min-content);
+  overflow: hidden;
 }
 
 .field {
   height: 12rem;
   width: 12rem;
   border: 0.3rem solid var(--color-primary);
+  font-size: 7.5rem;
+  font-weight: 400;
+  color: var(--color-primary);
+  transition: var(--trans-dur-primary);
+  position: relative;
+  overflow: visible;
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+}
+.field:hover {
+  background-color: var(--color-primary-light);
+}
+
+.win::after {
+  content: "";
+  z-index: 10;
+  background-color: var(--color-grey-dark-4);
+  height: 0.5rem;
+  width: 150%;
+  position: absolute;
+}
+.win--horizontal {
+  transform: rotate(0deg);
+}
+.win--vertical::after {
+  transform: rotate(90deg);
+}
+.win--top-left-right-bottom::after {
+  transform: rotate(45deg);
+}
+.win--top-left-left-bottom::after {
+  transform: rotate(-45deg);
+}
+
+.field--filled:hover {
+  background-color: var(--color-primary-red);
 }
 
 .remove-right {
@@ -219,12 +271,6 @@ body {
 .remove-top-bottom {
   border-top: none;
   border-bottom: none;
-}
-
-.game-num {
-  font-size: 7.5rem;
-  font-weight: 400;
-  color: var(--color-primary);
 }
 
 .footer {
